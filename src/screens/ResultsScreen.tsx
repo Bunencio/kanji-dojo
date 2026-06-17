@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { GameResult } from '@/games/types'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { speak } from '@/lib/speech'
+import { fanfare } from '@/lib/sound'
 import styles from './ResultsScreen.module.css'
 
 interface ResultsScreenProps {
@@ -24,6 +25,10 @@ export function ResultsScreen({ result, gameName, onReplay, onHome }: ResultsScr
   const pct = result.total ? Math.round((result.correct / result.total) * 100) : 0
   const { title, jp } = grade(pct)
   const [showAll, setShowAll] = useState(false)
+
+  useEffect(() => {
+    fanfare()
+  }, [])
 
   const missed = useMemo(() => result.log.filter((l) => !l.correct), [result.log])
   const list = showAll ? result.log : missed

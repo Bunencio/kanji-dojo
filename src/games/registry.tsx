@@ -3,6 +3,9 @@ import { TypingGame } from './TypingGame'
 import { TimeAttackGame } from './TimeAttackGame'
 import { FlashcardsGame } from './FlashcardsGame'
 import { MatchingGame } from './MatchingGame'
+import { ListeningGame } from './ListeningGame'
+import { SurvivalGame } from './SurvivalGame'
+import { ReviewGame } from './ReviewGame'
 import type { GameMeta, GameProps } from './types'
 
 /* Forward (kanji → reading/meaning) and reverse (reading/meaning → kanji)
@@ -15,6 +18,19 @@ function Recognition(props: GameProps) {
 }
 
 export const GAMES: GameMeta[] = [
+  {
+    id: 'review',
+    name: 'Smart Review',
+    jp: '復習',
+    tagline: 'Spaced repetition — study what’s due',
+    description:
+      'The fastest way to remember: reviews items right as you’re about to forget them, plus a few new ones. Mixed reading & meaning.',
+    icon: 'zap',
+    usesField: false,
+    usesDifficulty: true,
+    featured: true,
+    component: ReviewGame,
+  },
   {
     id: 'multiple-choice',
     name: 'Multiple Choice',
@@ -80,6 +96,28 @@ export const GAMES: GameMeta[] = [
     usesField: true,
     usesDifficulty: false,
     component: MatchingGame,
+  },
+  {
+    id: 'listening',
+    name: 'Listening',
+    jp: '聞き取り',
+    tagline: 'Hear it, pick the kanji',
+    description: 'Train your ear: the reading is spoken aloud and you choose the matching kanji or word.',
+    icon: 'ear',
+    usesField: false,
+    usesDifficulty: true,
+    component: ListeningGame,
+  },
+  {
+    id: 'survival',
+    name: 'Survival',
+    jp: 'サバイバル',
+    tagline: 'Endless — 3 lives, chase a streak',
+    description: 'Never-ending rapid quiz. Three lives, build the biggest combo you can. Maximum reps, fast.',
+    icon: 'heart',
+    usesField: true,
+    usesDifficulty: true,
+    component: SurvivalGame,
   },
 ]
 

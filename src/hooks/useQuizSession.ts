@@ -8,6 +8,7 @@ import { resolveField, type StudyField } from '@/lib/config'
 
 export interface QuizSessionConfig {
   pool: Kanji[]
+  collectionId: string
   field: StudyField
   direction: Direction
   optionCount: number
@@ -15,6 +16,8 @@ export interface QuizSessionConfig {
   length: number
   weakFirst: boolean
   progressMap: ProgressMap
+  /** Explicit, pre-ordered target list (e.g. a Smart Review queue). Overrides ordering/length. */
+  targets?: Kanji[]
 }
 
 export interface QuizSession {
@@ -36,11 +39,12 @@ export interface QuizSession {
  * and memoized so re-renders stay stable.
  */
 export function useQuizSession(config: QuizSessionConfig): QuizSession {
-  const { pool, field, direction, optionCount, length, weakFirst, progressMap } = config
+  const { pool, collectionId, field, direction, optionCount, length, weakFirst, progressMap } = config
 
   // Fix the target order once, at mount.
   const targets = useMemo(() => {
-    const base = weakFirst ? orderForStudy(pool, progressMap, true) : shuffle(pool)
+    if (config.targets) return config.targets
+    const base = weakFirst ? orderForStudy(pool, progressMap, collectionId, true) : shuffle(pool)
     const n = length === 0 ? base.length : Math.min(length, base.length)
     return base.slice(0, n)
     // eslint-disable-next-line react-hooks/exhaustive-deps

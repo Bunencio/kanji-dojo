@@ -45,7 +45,12 @@
   color: var(--text-muted);
 }
 
-.themeBtn {
+.headerActions {
+  display: flex;
+  gap: 8px;
+}
+
+.iconBtn {
   display: grid;
   place-items: center;
   width: 40px;
@@ -54,10 +59,142 @@
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text-muted);
+  transition: color 0.15s ease, background 0.15s ease;
 }
-.themeBtn:hover {
+.iconBtn:hover {
   color: var(--text);
   background: var(--surface-hover);
+}
+
+/* --------------------------------- daily ----------------------------------- */
+.daily {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.dailyCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.flame {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--text-faint);
+  flex: 0 0 auto;
+}
+.flameOn {
+  background: linear-gradient(135deg, var(--accent), #ff7a3c);
+  color: #fff;
+}
+
+.dailyText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.dailyValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.dailyOf {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+.dailyLabel {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.ring {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  transform: rotate(-90deg);
+}
+.ringTrack {
+  fill: none;
+  stroke: var(--surface-2);
+  stroke-width: 4;
+}
+.ringFill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ----------------------------- featured review ----------------------------- */
+.review {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  padding: 18px;
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(140% 160% at 0% 0%, var(--accent-soft), transparent 60%),
+    var(--surface);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  box-shadow: var(--shadow-md);
+  transition: transform 0.1s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.review:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+.review:active {
+  transform: translateY(0) scale(0.995);
+}
+
+.reviewIcon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-md);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 8px 18px -8px var(--accent-ring);
+}
+
+.reviewBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.reviewName {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+.reviewMeta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.reviewMeta strong {
+  color: var(--accent);
+}
+
+.reviewGo {
+  flex: 0 0 auto;
+  color: var(--accent);
 }
 
 /* ----------------------------------- hero ---------------------------------- */

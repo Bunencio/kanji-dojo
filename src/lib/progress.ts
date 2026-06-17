@@ -1,7 +1,10 @@
-/* Per-kanji mastery tracking. Pure helpers; persistence is handled by the
-   useProgress hook. */
+/* Per-item mastery stats. Pure helpers; persistence lives in useProgress.
+   Items are keyed by their global uid ("<collection>:<id>") so kanji and
+   vocabulary never collide. */
 
 import type { Kanji } from '@/data/types'
+import { itemUid, type Deck } from '@/data/decks'
+import { srsLevel, type SrsMap } from './srs'
 
 export interface KanjiStat {
   seen: number
@@ -12,26 +15,20 @@ export interface KanjiStat {
   lastSeen: number
 }
 
-export type ProgressMap = Record<number, KanjiStat>
+export type ProgressMap = Record<string, KanjiStat>
 
 export const emptyStat = (): KanjiStat => ({ seen: 0, correct: 0, streak: 0, lastSeen: 0 })
 
 /** Apply one review result, returning a new map (immutable update). */
-export function recordResult(map: ProgressMap, kanjiId: number, correct: boolean, now: number): ProgressMap {
-  const prev = map[kanjiId] ?? emptyStat()
+export function recordResult(map: ProgressMap, uid: string, correct: boolean, now: number): ProgressMap {
+  const prev = map[uid] ?? emptyStat()
   const next: KanjiStat = {
     seen: prev.seen + 1,
     correct: prev.correct + (correct ? 1 : 0),
     streak: correct ? prev.streak + 1 : 0,
     lastSeen: now,
   }
-  return { ...map, [kanjiId]: next }
-}
-
-/** Mastery on a 0–5 scale, driven by the current correct streak. */
-export function masteryLevel(stat: KanjiStat | undefined): number {
-  if (!stat || stat.seen === 0) return 0
-  return Math.min(5, stat.streak)
+  return { ...map, [uid]: next }
 }
 
 export interface ProgressSummary {
@@ -42,18 +39,20 @@ export interface ProgressSummary {
   accuracy: number // 0–1
 }
 
-export function summarize(map: ProgressMap, deck: readonly Kanji[]): ProgressSummary {
+/** Summary for a deck, using SRS interval as the mastery signal. */
+export function summarize(stats: ProgressMap, srs: SrsMap, deck: Deck): ProgressSummary {
   let studied = 0
   let mastered = 0
   let totalSeen = 0
   let totalCorrect = 0
-  for (const k of deck) {
-    const stat = map[k.id]
+  for (const k of deck.kanji) {
+    const uid = itemUid(deck.collectionId, k.id)
+    const stat = stats[uid]
     if (!stat || stat.seen === 0) continue
     studied++
     totalSeen += stat.seen
     totalCorrect += stat.correct
-    if (masteryLevel(stat) >= 5) mastered++
+    if (srsLevel(srs[uid]) >= 5) mastered++
   }
   return {
     studied,
@@ -65,13 +64,18 @@ export function summarize(map: ProgressMap, deck: readonly Kanji[]): ProgressSum
 }
 
 /**
- * Order a deck for study. `weakFirst` prioritizes unseen and low-streak kanji
+ * Order a pool for study. `weakFirst` prioritizes unseen and low-accuracy items
  * so practice naturally targets weak spots; otherwise the source order is kept.
  */
-export function orderForStudy(deck: readonly Kanji[], map: ProgressMap, weakFirst: boolean): Kanji[] {
-  if (!weakFirst) return deck.slice()
-  return deck
-    .map((k, i) => ({ k, i, score: weaknessScore(map[k.id]) }))
+export function orderForStudy(
+  pool: readonly Kanji[],
+  stats: ProgressMap,
+  collectionId: string,
+  weakFirst: boolean,
+): Kanji[] {
+  if (!weakFirst) return pool.slice()
+  return pool
+    .map((k, i) => ({ k, i, score: weaknessScore(stats[itemUid(collectionId, k.id)]) }))
     .sort((a, b) => b.score - a.score || a.i - b.i)
     .map((x) => x.k)
 }

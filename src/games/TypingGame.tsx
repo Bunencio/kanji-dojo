@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { itemUid } from '@/data/decks'
 import { GameShell } from '@/components/game/GameShell'
 import { Prompt } from '@/components/game/Prompt'
 import { Reveal } from '@/components/game/Reveal'
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { useQuizSession } from '@/hooks/useQuizSession'
 import { checkTyped } from '@/lib/quiz'
+import { ping } from '@/lib/sound'
 import type { GameProps } from './types'
 import shared from './quiz-shared.module.css'
 import styles from './TypingGame.module.css'
@@ -25,6 +27,7 @@ export function TypingGame({
 }: GameProps) {
   const session = useQuizSession({
     pool: deck.kanji,
+    collectionId: deck.collectionId,
     field,
     direction: 'recall',
     optionCount: difficulty.optionCount,
@@ -50,8 +53,9 @@ export function TypingGame({
     const correct = checkTyped(question, value)
     setLastCorrect(correct)
     setAnswered(true)
+    ping(correct)
     session.answer(correct)
-    progress.record(question.target.id, correct)
+    progress.record(itemUid(deck.collectionId, question.target.id), correct)
   }
 
   function advance() {

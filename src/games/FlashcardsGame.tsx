@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import type { Kanji } from '@/data/types'
+import { itemUid } from '@/data/decks'
 import { GameShell } from '@/components/game/GameShell'
 import { StatPill } from '@/components/game/StatPill'
 import { Button } from '@/components/ui/Button'
@@ -14,7 +15,9 @@ const GAME_ID = 'flashcards'
 
 export function FlashcardsGame({ deck, length, weakFirst, progress, onExit, onFinish }: GameProps) {
   const targets = useMemo<Kanji[]>(() => {
-    const base = weakFirst ? orderForStudy(deck.kanji, progress.map, true) : shuffle(deck.kanji)
+    const base = weakFirst
+      ? orderForStudy(deck.kanji, progress.map, deck.collectionId, true)
+      : shuffle(deck.kanji)
     const n = length === 0 ? base.length : Math.min(length, base.length)
     return base.slice(0, n)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -30,7 +33,7 @@ export function FlashcardsGame({ deck, length, weakFirst, progress, onExit, onFi
 
   function grade(correct: boolean) {
     log.current.push({ kanji: card, correct })
-    progress.record(card.id, correct)
+    progress.record(itemUid(deck.collectionId, card.id), correct)
     if (correct) setKnown((k) => k + 1)
     if (isLast) {
       onFinish({ gameId: GAME_ID, correct: known + (correct ? 1 : 0), total: targets.length, log: log.current })

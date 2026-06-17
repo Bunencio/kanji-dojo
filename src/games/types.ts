@@ -40,5 +40,7 @@ export interface GameMeta {
   usesField: boolean
   /** Whether the difficulty selector applies. */
   usesDifficulty: boolean
+  /** Featured modes render as a prominent card above the gallery. */
+  featured?: boolean
   component: ComponentType<GameProps>
 }

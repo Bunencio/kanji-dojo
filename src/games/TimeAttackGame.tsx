@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { itemUid } from '@/data/decks'
 import type { Choice } from '@/lib/quiz'
+import { ping } from '@/lib/sound'
 import { GameShell } from '@/components/game/GameShell'
 import { Prompt } from '@/components/game/Prompt'
 import { ChoiceGrid } from '@/components/game/ChoiceGrid'
@@ -26,6 +28,7 @@ export function TimeAttackGame({
   const limit = difficulty.secondsPerQuestion
   const session = useQuizSession({
     pool: deck.kanji,
+    collectionId: deck.collectionId,
     field,
     direction: 'recall',
     optionCount: difficulty.optionCount,
@@ -47,8 +50,9 @@ export function TimeAttackGame({
     setSelectedKey(key)
     setLastCorrect(correct)
     setAnswered(true)
+    ping(correct)
     session.answer(correct)
-    progress.record(question.target.id, correct)
+    progress.record(itemUid(deck.collectionId, question.target.id), correct)
     setStreak((s) => {
       const next = correct ? s + 1 : 0
       bestStreak.current = Math.max(bestStreak.current, next)

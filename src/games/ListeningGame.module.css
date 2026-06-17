@@ -1,0 +1,58 @@
+.audioCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px 24px;
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(120% 100% at 50% 0%, color-mix(in srgb, var(--surface-2) 80%, transparent), var(--surface));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+.caption {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.playBtn {
+  display: grid;
+  place-items: center;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 12px 30px -10px var(--accent-ring);
+  transition: transform 0.12s ease, background 0.15s ease;
+  animation: pulse 2s ease-in-out infinite;
+}
+.playBtn:hover {
+  background: var(--accent-strong);
+}
+.playBtn:active {
+  transform: scale(0.94);
+}
+
+.replay {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
+.fallback {
+  font-family: var(--font-jp);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 12px 30px -10px var(--accent-ring), 0 0 0 0 var(--accent-soft);
+  }
+  50% {
+    box-shadow: 0 12px 30px -10px var(--accent-ring), 0 0 0 14px transparent;
+  }
+}

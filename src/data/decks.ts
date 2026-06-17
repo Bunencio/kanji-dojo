@@ -14,9 +14,16 @@ import { VOCAB } from './vocab'
 
 export interface Deck {
   id: string
+  /** Owning collection id — part of each item's global key. */
+  collectionId: string
   label: string
   caption: string
   kanji: Kanji[]
+}
+
+/** Global key for a study item, unique across collections. */
+export function itemUid(collectionId: string, id: number): string {
+  return `${collectionId}:${id}`
 }
 
 export interface Collection {
@@ -31,9 +38,10 @@ export interface Collection {
 /** Items per focused study set. */
 export const SET_SIZE = 24
 
-function buildDecks(all: Kanji[], allLabel: string): Deck[] {
+function buildDecks(all: Kanji[], allLabel: string, collectionId: string): Deck[] {
   const allDeck: Deck = {
     id: 'all',
+    collectionId,
     label: allLabel,
     caption: `Full deck · ${all.length}`,
     kanji: all,
@@ -44,6 +52,7 @@ function buildDecks(all: Kanji[], allLabel: string): Deck[] {
     const n = sets.length + 1
     sets.push({
       id: `set-${n}`,
+      collectionId,
       label: `Set ${n}`,
       caption: `${i + 1}–${i + slice.length}`,
       kanji: slice,
@@ -59,7 +68,7 @@ export const COLLECTIONS: Collection[] = [
     jp: '漢字',
     caption: 'Single characters · readings & meaning',
     count: KANJI.length,
-    decks: buildDecks(KANJI, 'All kanji'),
+    decks: buildDecks(KANJI, 'All kanji', 'kanji'),
   },
   {
     id: 'vocab',
@@ -67,7 +76,7 @@ export const COLLECTIONS: Collection[] = [
     jp: '語彙',
     caption: 'Words · reading & translation',
     count: VOCAB.length,
-    decks: buildDecks(VOCAB, 'All words'),
+    decks: buildDecks(VOCAB, 'All words', 'vocab'),
   },
 ]
 

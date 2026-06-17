@@ -1,53 +1,32 @@
 import { useEffect, useState } from 'react'
-import type { Kanji } from '@/data/types'
 import { itemUid } from '@/data/decks'
-import type { Direction, Choice } from '@/lib/quiz'
+import type { Choice } from '@/lib/quiz'
 import { GameShell } from '@/components/game/GameShell'
-import { Prompt } from '@/components/game/Prompt'
 import { ChoiceGrid } from '@/components/game/ChoiceGrid'
 import { Reveal } from '@/components/game/Reveal'
 import { StatPill } from '@/components/game/StatPill'
-import { Combo } from '@/components/game/Combo'
 import { Icon } from '@/components/ui/Icon'
 import { useQuizSession } from '@/hooks/useQuizSession'
+import { canSpeak, speak } from '@/lib/speech'
 import { ping } from '@/lib/sound'
 import type { GameProps } from './types'
 import shared from './quiz-shared.module.css'
+import styles from './ListeningGame.module.css'
 
-interface ChoiceQuizGameProps extends GameProps {
-  gameId: string
-  title: string
-  direction: Direction
-  /** Optional pre-ordered queue (Smart Review). */
-  targets?: Kanji[]
-}
+const GAME_ID = 'listening'
 
-export function ChoiceQuizGame({
-  gameId,
-  title,
-  direction,
-  targets,
-  deck,
-  field,
-  difficulty,
-  length,
-  weakFirst,
-  progress,
-  onExit,
-  onFinish,
-}: ChoiceQuizGameProps) {
+export function ListeningGame({ deck, difficulty, length, weakFirst, progress, onExit, onFinish }: GameProps) {
+  // Always recognition by ear: hear the reading, pick the kanji/word.
   const session = useQuizSession({
     pool: deck.kanji,
     collectionId: deck.collectionId,
-    field,
-    direction,
+    field: 'reading',
+    direction: 'recognize',
     optionCount: difficulty.optionCount,
     length,
     weakFirst,
     progressMap: progress.map,
-    targets,
   })
-  const [combo, setCombo] = useState(0)
 
   const [answered, setAnswered] = useState(false)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
@@ -55,12 +34,17 @@ export function ChoiceQuizGame({
 
   const { question } = session
 
+  // Auto-play the reading when a new question appears.
+  useEffect(() => {
+    speak(question.promptMain)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.index])
+
   function pick(choice: Choice) {
     if (answered) return
     setSelectedKey(choice.key)
     setAnswered(true)
     setLastCorrect(choice.correct)
-    setCombo((c) => (choice.correct ? c + 1 : 0))
     ping(choice.correct)
     session.answer(choice.correct)
     progress.record(itemUid(deck.collectionId, question.target.id), choice.correct)
@@ -68,7 +52,7 @@ export function ChoiceQuizGame({
 
   function advance() {
     if (session.isLast) {
-      onFinish({ gameId, correct: session.correctCount, total: session.total, log: session.log })
+      onFinish({ gameId: GAME_ID, correct: session.correctCount, total: session.total, log: session.log })
       return
     }
     setAnswered(false)
@@ -76,23 +60,9 @@ export function ChoiceQuizGame({
     session.next()
   }
 
-  // Number-key shortcuts (1–9) for picking a choice on desktop.
-  useEffect(() => {
-    if (answered) return
-    function onKey(e: KeyboardEvent) {
-      const n = Number(e.key)
-      if (Number.isInteger(n) && n >= 1 && n <= question.choices.length) {
-        pick(question.choices[n - 1])
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answered, question])
-
   return (
     <GameShell
-      title={title}
+      title="Listening"
       onQuit={onExit}
       progressValue={session.index + (answered ? 1 : 0)}
       progressMax={session.total}
@@ -103,23 +73,24 @@ export function ChoiceQuizGame({
       }
     >
       <div className={shared.stack}>
-        <Combo count={combo} />
-        <Prompt
-          caption={question.promptCaption}
-          main={question.promptMain}
-          glyph={question.promptIsGlyph}
-          state={answered ? (lastCorrect ? 'correct' : 'wrong') : 'idle'}
-        />
-        <div className={shared.spacer} />
-        <div className={shared.choices}>
-          <ChoiceGrid
-            choices={question.choices}
-            selectedKey={selectedKey}
-            answered={answered}
-            onPick={pick}
-            glyph={direction === 'recognize'}
-          />
+        <div className={styles.audioCard}>
+          <span className={styles.caption}>Listen and choose the kanji</span>
+          <button
+            className={styles.playBtn}
+            onClick={() => speak(question.promptMain)}
+            aria-label="Play audio again"
+          >
+            <Icon name="volume" size={40} />
+          </button>
+          <span className={styles.replay}>Tap to replay</span>
+          {!canSpeak() && (
+            <span className={styles.fallback} lang="ja">
+              (no audio voice — reading: {question.promptMain})
+            </span>
+          )}
         </div>
+        <div className={shared.spacer} />
+        <ChoiceGrid choices={question.choices} selectedKey={selectedKey} answered={answered} onPick={pick} glyph />
         {answered && (
           <Reveal kanji={question.target} correct={lastCorrect} onNext={advance} isLast={session.isLast} />
         )}

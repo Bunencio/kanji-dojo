@@ -1,8 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { GameConfig } from '@/lib/config'
 import { DIFFICULTIES, SESSION_LENGTHS, STUDY_FIELDS, lengthLabel } from '@/lib/config'
 import { COLLECTIONS, collectionById, deckById } from '@/data/decks'
 import { summarize } from '@/lib/progress'
+import { dueCount, newCount } from '@/lib/srs'
+import { effectiveStreak, todayCount } from '@/lib/daily'
+import { isSoundEnabled, setSoundEnabled } from '@/lib/sound'
 import type { ProgressApi } from '@/hooks/useProgress'
 import type { Theme } from '@/hooks/useTheme'
 import { GAMES } from '@/games/registry'
@@ -24,9 +27,20 @@ interface HomeScreenProps {
 export function HomeScreen({ config, setConfig, progress, theme, onToggleTheme, onStart }: HomeScreenProps) {
   const collection = collectionById(config.collectionId)
   const deck = deckById(config.collectionId, config.deckId)
-  const summary = useMemo(() => summarize(progress.map, deck.kanji), [progress.map, deck])
-  const accuracyPct = Math.round(summary.accuracy * 100)
+  const now = Date.now()
+
+  const summary = useMemo(() => summarize(progress.map, progress.srs, deck), [progress.map, progress.srs, deck])
+  const due = useMemo(() => dueCount(deck.kanji, deck.collectionId, progress.srs, now), [progress.srs, deck, now])
+  const fresh = useMemo(() => newCount(deck.kanji, deck.collectionId, progress.srs), [progress.srs, deck])
+
+  const streak = effectiveStreak(progress.daily, now)
+  const today = todayCount(progress.daily, now)
+  const goal = progress.daily.goal
   const masteredPct = deck.kanji.length ? Math.round((summary.mastered / deck.kanji.length) * 100) : 0
+
+  const [soundOn, setSoundOn] = useState(isSoundEnabled())
+  const featured = GAMES.filter((g) => g.featured)
+  const gallery = GAMES.filter((g) => !g.featured)
 
   return (
     <div className={styles.page}>
@@ -42,16 +56,79 @@ export function HomeScreen({ config, setConfig, progress, theme, onToggleTheme, 
             </p>
           </div>
         </div>
-        <button className={styles.themeBtn} onClick={onToggleTheme} aria-label="Toggle theme">
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
-        </button>
+        <div className={styles.headerActions}>
+          <button
+            className={styles.iconBtn}
+            onClick={() => {
+              const v = !soundOn
+              setSoundOn(v)
+              setSoundEnabled(v)
+            }}
+            aria-label={soundOn ? 'Mute sounds' : 'Unmute sounds'}
+            aria-pressed={soundOn}
+          >
+            <Icon name={soundOn ? 'volume' : 'volume-x'} size={18} />
+          </button>
+          <button className={styles.iconBtn} onClick={onToggleTheme} aria-label="Toggle theme">
+            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
+          </button>
+        </div>
       </header>
 
-      {/* Progress overview for the selected deck */}
-      <section className={styles.hero} aria-label="Your progress">
+      {/* Daily streak + goal */}
+      <section className={styles.daily} aria-label="Daily progress">
+        <div className={styles.dailyCard}>
+          <span className={`${styles.flame} ${streak > 0 ? styles.flameOn : ''}`}>
+            <Icon name="flame" size={20} />
+          </span>
+          <div className={styles.dailyText}>
+            <span className={styles.dailyValue}>{streak}</span>
+            <span className={styles.dailyLabel}>day streak</span>
+          </div>
+        </div>
+        <div className={styles.dailyCard}>
+          <Ring value={today} max={goal} />
+          <div className={styles.dailyText}>
+            <span className={styles.dailyValue}>
+              {today}
+              <span className={styles.dailyOf}>/{goal}</span>
+            </span>
+            <span className={styles.dailyLabel}>reviews today</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured: Smart Review */}
+      {featured.map((game) => (
+        <button key={game.id} className={styles.review} onClick={() => onStart(game.id)}>
+          <span className={styles.reviewIcon}>
+            <Icon name="zap" size={24} />
+          </span>
+          <span className={styles.reviewBody}>
+            <span className={styles.reviewName}>{game.name}</span>
+            <span className={styles.reviewMeta}>
+              {due > 0 ? (
+                <strong>{due} due now</strong>
+              ) : (
+                <span>nothing due — </span>
+              )}
+              {fresh > 0 && <span> · {fresh} new to learn</span>}
+              {due === 0 && fresh === 0 && <span>all caught up 🎉</span>}
+            </span>
+          </span>
+          <span className={styles.reviewGo}>
+            <Icon name="arrow-right" size={20} />
+          </span>
+        </button>
+      ))}
+
+      {/* Deck progress */}
+      <section className={styles.hero} aria-label="Deck progress">
         <div className={styles.heroTop}>
           <div>
-            <p className={styles.heroLabel}>{deck.label}</p>
+            <p className={styles.heroLabel}>
+              {collection.label} · {deck.label}
+            </p>
             <p className={styles.heroCaption}>{deck.caption}</p>
           </div>
           {summary.totalSeen > 0 && (
@@ -63,7 +140,10 @@ export function HomeScreen({ config, setConfig, progress, theme, onToggleTheme, 
         <div className={styles.stats}>
           <Stat value={`${summary.mastered}`} sub={`/ ${deck.kanji.length} mastered`} />
           <Stat value={`${summary.studied}`} sub="studied" />
-          <Stat value={summary.totalSeen ? `${accuracyPct}%` : '—'} sub="accuracy" />
+          <Stat
+            value={summary.totalSeen ? `${Math.round(summary.accuracy * 100)}%` : '—'}
+            sub="accuracy"
+          />
         </div>
         <div className={styles.bar}>
           <div className={styles.barFill} style={{ width: `${masteredPct}%` }} />
@@ -130,7 +210,7 @@ export function HomeScreen({ config, setConfig, progress, theme, onToggleTheme, 
             checked={config.weakFirst}
             onChange={(weakFirst) => setConfig({ weakFirst })}
             label="Focus weak kanji first"
-            hint="Prioritize unseen and frequently-missed kanji"
+            hint="Prioritize unseen and frequently-missed items"
           />
         </div>
       </section>
@@ -138,21 +218,38 @@ export function HomeScreen({ config, setConfig, progress, theme, onToggleTheme, 
       {/* Game gallery */}
       <section aria-label="Games">
         <h2 className={styles.gamesHeading}>
-          Choose a game <span className={styles.gamesCount}>{GAMES.length} modes</span>
+          Choose a game <span className={styles.gamesCount}>{gallery.length} modes</span>
         </h2>
         <div className={styles.gallery}>
-          {GAMES.map((game) => (
+          {gallery.map((game) => (
             <GameCard key={game.id} game={game} onClick={() => onStart(game.id)} />
           ))}
         </div>
       </section>
 
       <footer className={styles.footer}>
-        <p>
-          Tip: not sure which sticks? Try the same deck in two or three modes and compare your accuracy.
-        </p>
+        <p>Daily Smart Review is the fastest path — a few minutes a day beats one long cram.</p>
       </footer>
     </div>
+  )
+}
+
+function Ring({ value, max }: { value: number; max: number }) {
+  const pct = max <= 0 ? 0 : Math.min(1, value / max)
+  const r = 16
+  const c = 2 * Math.PI * r
+  return (
+    <svg className={styles.ring} viewBox="0 0 40 40" aria-hidden="true">
+      <circle className={styles.ringTrack} cx="20" cy="20" r={r} />
+      <circle
+        className={styles.ringFill}
+        cx="20"
+        cy="20"
+        r={r}
+        strokeDasharray={c}
+        strokeDashoffset={c * (1 - pct)}
+      />
+    </svg>
   )
 }
 

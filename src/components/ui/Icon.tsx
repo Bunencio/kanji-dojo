@@ -21,6 +21,9 @@ type IconName =
   | 'layers'
   | 'grid'
   | 'chart'
+  | 'zap'
+  | 'ear'
+  | 'volume-x'
 
 const PATHS: Record<IconName, string> = {
   'arrow-left': 'M19 12H5M12 19l-7-7 7-7',
@@ -44,6 +47,9 @@ const PATHS: Record<IconName, string> = {
   layers: 'M12 2l9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5',
   grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
   chart: 'M3 3v18h18M8 16V9M13 16V5M18 16v-4',
+  zap: 'M13 2L4.5 13.5H11l-1 8.5L19.5 10H13l0-8z',
+  ear: 'M6 11a6 6 0 1 1 12 0c0 2.5-1.5 3.5-2.5 4.5S14 17.5 14 19a2.5 2.5 0 0 1-5 0M8.5 9a3.5 3.5 0 0 1 5.5-2.5',
+  'volume-x': 'M11 5L6 9H2v6h4l5 4V5zM22 9l-6 6M16 9l6 6',
 }
 
 interface IconProps extends SVGProps<SVGSVGElement> {

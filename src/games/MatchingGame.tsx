@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Kanji } from '@/data/types'
+import { itemUid } from '@/data/decks'
 import { GameShell } from '@/components/game/GameShell'
 import { StatPill } from '@/components/game/StatPill'
 import { Icon } from '@/components/ui/Icon'
@@ -19,7 +20,9 @@ interface AnswerCard {
 
 export function MatchingGame({ deck, field, length, weakFirst, progress, onExit, onFinish }: GameProps) {
   const targets = useMemo<Kanji[]>(() => {
-    const base = weakFirst ? orderForStudy(deck.kanji, progress.map, true) : shuffle(deck.kanji)
+    const base = weakFirst
+      ? orderForStudy(deck.kanji, progress.map, deck.collectionId, true)
+      : shuffle(deck.kanji)
     const n = length === 0 ? base.length : Math.min(length, base.length)
     return base.slice(0, n)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,7 +64,7 @@ export function MatchingGame({ deck, field, length, weakFirst, progress, onExit,
       const ok = !erred.current.has(l)
       if (ok) correctCount.current += 1
       log.current.push({ kanji: k, correct: ok })
-      progress.record(l, ok)
+      progress.record(itemUid(deck.collectionId, l), ok)
       const nextMatched = new Set(matched).add(l)
       setMatched(nextMatched)
       setSelLeft(null)
