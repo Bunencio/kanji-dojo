@@ -3,7 +3,10 @@ import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
 
 // https://vite.dev/config/
-export default defineConfig({
+// Production builds are served from the GitHub Pages subpath
+// (https://<user>.github.io/kanji-dojo/); local dev stays at the root.
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/kanji-dojo/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -19,4 +22,4 @@ export default defineConfig({
     port: 4173,
     host: true,
   },
-})
+}))
