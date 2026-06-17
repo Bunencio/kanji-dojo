@@ -1,0 +1,72 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 420px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.glyphGrid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 60px;
+  padding: 14px 18px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-family: var(--font-jp);
+  transition:
+    transform 0.08s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.choice:not(:disabled):hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+.choice:not(:disabled):active {
+  transform: scale(0.985);
+}
+
+.glyph {
+  font-family: var(--font-jp-serif);
+  font-size: clamp(1.5rem, 7vw, 2.6rem);
+  font-weight: 700;
+  min-height: 96px;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  line-height: 1.2;
+}
+
+.correct {
+  background: var(--success-soft);
+  border-color: var(--success);
+  color: var(--text);
+  box-shadow: 0 0 0 1px var(--success);
+}
+
+.wrong {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger);
+}
+
+.dim {
+  opacity: 0.45;
+}

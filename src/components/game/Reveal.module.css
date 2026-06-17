@@ -1,0 +1,167 @@
+.panel {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: rise 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ok {
+  border-color: color-mix(in srgb, var(--success) 50%, var(--border));
+}
+.no {
+  border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 5px 10px;
+  border-radius: var(--r-pill);
+}
+.okBadge {
+  color: var(--success);
+  background: var(--success-soft);
+}
+.noBadge {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.speak {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-pill);
+  color: var(--text-muted);
+  background: var(--surface-2);
+}
+.speak:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.answer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.glyph {
+  font-family: var(--font-jp-serif);
+  font-weight: 700;
+  font-size: clamp(2rem, 8vw, 3rem);
+  line-height: 1.1;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.readings {
+  font-family: var(--font-jp);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.meaning {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* --------------------------------- examples -------------------------------- */
+.examples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.exHead {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-faint);
+}
+
+.exList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.exItem {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.exSpeak {
+  flex: 0 0 auto;
+  text-align: left;
+  padding: 2px 4px;
+  border-radius: var(--r-sm);
+  transition: background 0.15s ease;
+}
+.exSpeak:hover {
+  background: var(--surface-2);
+}
+
+.exWord {
+  font-family: var(--font-jp);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  ruby-align: center;
+}
+.exWord rt {
+  font-size: 0.58em;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 1px;
+}
+
+.exMeaning {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

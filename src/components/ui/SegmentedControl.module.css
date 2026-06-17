@@ -1,0 +1,61 @@
+.row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 8px;
+}
+
+.seg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+  text-align: left;
+  flex: 0 0 auto;
+}
+.row .seg {
+  white-space: nowrap;
+}
+
+.seg:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.caption {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+.active .caption {
+  color: var(--text-muted);
+}

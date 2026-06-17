@@ -1,0 +1,24 @@
+.timerRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.timerTrack {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.timerFill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--r-pill);
+  /* width is animated implicitly each rAF tick */
+}
+
+.timerLow {
+  background: var(--danger);
+}

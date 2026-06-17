@@ -1,0 +1,115 @@
+.wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-height: 56vh;
+  perspective: 1400px;
+  background: none;
+  display: block;
+}
+
+.inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flipped .inner {
+  transform: rotateY(180deg);
+}
+
+.front,
+.back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--surface-2) 80%, transparent), var(--surface));
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+.glyph {
+  font-family: var(--font-jp-serif);
+  font-weight: 700;
+  font-size: clamp(6rem, 32vw, 10rem);
+  line-height: 1;
+  color: var(--text);
+}
+
+.word {
+  font-family: var(--font-jp-serif);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 15vw, 5rem);
+  line-height: 1.15;
+  text-align: center;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  padding: 0 8px;
+}
+
+.tap {
+  font-size: 0.85rem;
+  color: var(--text-faint);
+}
+
+.readings {
+  font-family: var(--font-jp);
+  font-weight: 700;
+  font-size: clamp(1.8rem, 8vw, 2.6rem);
+  color: var(--accent);
+  text-align: center;
+}
+
+.meaning {
+  font-size: 1.25rem;
+  color: var(--text);
+  text-align: center;
+}
+
+.speak {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.speak:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.actions :only-child {
+  grid-column: 1 / -1;
+}
