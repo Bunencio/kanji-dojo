@@ -34,9 +34,12 @@ export function ListeningGame({ deck, difficulty, length, weakFirst, progress, o
 
   const { question } = session
 
+  // Speak a single natural reading (the prompt text shows the full set).
+  const spoken = question.target.readings[0]
+
   // Auto-play the reading when a new question appears.
   useEffect(() => {
-    speak(question.promptMain)
+    speak(spoken)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.index])
 
@@ -75,11 +78,7 @@ export function ListeningGame({ deck, difficulty, length, weakFirst, progress, o
       <div className={shared.stack}>
         <div className={styles.audioCard}>
           <span className={styles.caption}>Listen and choose the kanji</span>
-          <button
-            className={styles.playBtn}
-            onClick={() => speak(question.promptMain)}
-            aria-label="Play audio again"
-          >
+          <button className={styles.playBtn} onClick={() => speak(spoken)} aria-label="Play audio again">
             <Icon name="volume" size={40} />
           </button>
           <span className={styles.replay}>Tap to replay</span>

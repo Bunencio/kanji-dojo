@@ -3,7 +3,7 @@
 
 import type { Kanji } from '@/data/types'
 import { normalizeMeaning, normalizeReading } from './kana'
-import { pickOne, sample, shuffle } from './random'
+import { sample, shuffle } from './random'
 
 /** Which side of the card is being tested. */
 export type TestField = 'reading' | 'meaning'
@@ -177,10 +177,11 @@ export function buildQuestion(target: Kanji, pool: readonly Kanji[], opts: Build
     }
   }
 
-  // direction === 'recognize' → prompt is the reading/meaning, answer is the kanji
-  const promptMain = testField === 'reading' ? pickOne(target.readings) : target.meaning
+  // direction === 'recognize' → prompt is the reading(s)/meaning, answer is the kanji.
+  // Show the full reading set so both on'yomi and kun'yomi are presented.
+  const promptMain = testField === 'reading' ? readingSet(target) : target.meaning
   const sharedAnswer = new Set(
-    testField === 'reading' ? [normalizeReading(promptMain)] : [normalizeMeaning(target.meaning)],
+    testField === 'reading' ? target.readings.map(normalizeReading) : [normalizeMeaning(target.meaning)],
   )
   const distractors = kanjiDistractors(pool, target, sharedAnswer, distractorCount)
   const choices = shuffle([
@@ -193,7 +194,12 @@ export function buildQuestion(target: Kanji, pool: readonly Kanji[], opts: Build
     testField,
     direction,
     promptMain,
-    promptCaption: testField === 'reading' ? 'Which kanji has this reading?' : 'Which kanji means this?',
+    promptCaption:
+      testField === 'reading'
+        ? target.readings.length > 1
+          ? 'Which kanji has these readings?'
+          : 'Which kanji has this reading?'
+        : 'Which kanji means this?',
     promptIsGlyph: false,
     choices,
     accepted: [normalizeReading(target.kanji)],
