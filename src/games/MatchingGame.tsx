@@ -41,7 +41,8 @@ export function MatchingGame({ deck, field, length, weakFirst, progress, onExit,
   const left = useMemo(() => shuffle(board), [boardIndex]) // eslint-disable-line react-hooks/exhaustive-deps
   const right = useMemo<AnswerCard[]>(() => {
     const useReading = resolveField(field, boardIndex) === 'reading'
-    return shuffle(board.map((k) => ({ id: k.id, label: useReading ? k.readings[0] : k.meaning })))
+    // Show the full reading set (on'yomi + kun'yomi), matching the reveal.
+    return shuffle(board.map((k) => ({ id: k.id, label: useReading ? k.readings.join('・') : k.meaning })))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardIndex])
 
